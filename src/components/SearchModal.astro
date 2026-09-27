@@ -1,0 +1,140 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+const searchIndex = posts.map((post) => ({
+  slug: post.id,
+  title: post.data.title,
+  description: post.data.description,
+  tags: post.data.tags,
+  pubDate: post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+}));
+---
+
+<div
+  id="search-modal"
+  class="hidden fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20 bg-black/60 backdrop-blur-sm flex items-start justify-center transition-all duration-150"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    class="relative w-full max-w-xl rounded-xl border border-theme-border bg-bg-primary shadow-2xl overflow-hidden transition-all"
+    id="search-container"
+  >
+    <!-- Input Field -->
+    <div class="flex items-center px-4 border-b border-theme-border bg-bg-secondary">
+      <svg class="w-4 h-4 text-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Type to search articles, topics or tags..."
+        class="w-full bg-transparent px-3 py-3.5 text-sm text-fg-primary placeholder-fg-muted focus:outline-none font-mono"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <kbd class="px-1.5 py-0.5 text-[10px] text-fg-muted bg-bg-tertiary rounded border border-theme-border font-mono">ESC</kbd>
+    </div>
+
+    <!-- Results List -->
+    <div id="search-results" class="max-h-80 overflow-y-auto p-2 space-y-1">
+      <!-- Injected dynamically via script -->
+    </div>
+
+    <!-- Footer Guide -->
+    <div class="px-4 py-2 bg-bg-secondary border-t border-theme-border flex items-center justify-between text-[11px] font-mono text-fg-muted">
+      <span><kbd class="px-1 py-0.5 bg-bg-tertiary rounded border border-theme-border">↑</kbd> <kbd class="px-1 py-0.5 bg-bg-tertiary rounded border border-theme-border">↓</kbd> to navigate</span>
+      <span><kbd class="px-1 py-0.5 bg-bg-tertiary rounded border border-theme-border">↵</kbd> to select</span>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ searchIndex }}>
+  function initSearch() {
+    const modal = document.getElementById('search-modal');
+    const input = document.getElementById('search-input');
+    const results = document.getElementById('search-results');
+    const openBtns = [
+      document.getElementById('open-search-btn'),
+      document.getElementById('mobile-search-btn')
+    ].filter(Boolean);
+
+    if (!modal || !input || !results) return;
+
+    let selectedIndex = -1;
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      input.value = '';
+      renderResults(searchIndex);
+      input.focus();
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    function renderResults(items) {
+      if (items.length === 0) {
+        results.innerHTML = `<div class="p-6 text-center text-xs font-mono text-fg-muted">No matching articles found.</div>`;
+        return;
+      }
+
+      results.innerHTML = items.map((item, index) => `
+        <a
+          href="/blog/${item.slug}"
+          class="search-item flex flex-col p-2.5 rounded-lg text-left transition-colors border border-transparent hover:bg-bg-secondary hover:border-theme-border ${index === 0 ? 'bg-bg-secondary border-theme-border' : ''}"
+          data-index="${index}"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-fg-primary">${item.title}</span>
+            <span class="text-[10px] font-mono text-fg-muted">${item.pubDate}</span>
+          </div>
+          <p class="text-xs text-fg-secondary line-clamp-1 mt-0.5">${item.description}</p>
+          <div class="flex gap-1 mt-1.5">
+            ${item.tags.map(t => `<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-bg-tertiary text-accent">#${t}</span>`).join('')}
+          </div>
+        </a>
+      `).join('');
+
+      selectedIndex = 0;
+    }
+
+    input.addEventListener('input', (e) => {
+      const q = (e.target.value || '').toLowerCase().trim();
+      if (!q) {
+        renderResults(searchIndex);
+        return;
+      }
+      const filtered = searchIndex.filter(item => 
+        item.title.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.tags.some(t => t.toLowerCase().includes(q))
+      );
+      renderResults(filtered);
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (modal.classList.contains('hidden')) {
+          openModal();
+        } else {
+          closeModal();
+        }
+      } else if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    openBtns.forEach(b => b.addEventListener('click', openModal));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  initSearch();
+  document.addEventListener('astro:page-load', initSearch);
+</script>

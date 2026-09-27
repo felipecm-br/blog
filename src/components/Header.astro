@@ -1,0 +1,106 @@
+---
+import { siteConfig } from '../data/siteConfig';
+import ThemeSelector from './ThemeSelector.astro';
+import ModeToggle from './ModeToggle.astro';
+
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.replace(/\/$/, "");
+---
+
+<header class="sticky top-0 z-40 w-full glass-nav border-b border-theme-border transition-colors">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- Brand / Terminal Prompt -->
+    <a href="/" class="flex items-center gap-2 group text-fg-primary hover:text-accent transition-colors">
+      <span class="font-mono text-accent font-bold text-lg">&gt;_</span>
+      <span class="font-mono font-semibold tracking-tight text-sm sm:text-base">felipecm<span class="text-fg-muted font-normal">.dev</span></span>
+    </a>
+
+    <!-- Desktop Navigation Links -->
+    <nav class="hidden md:flex items-center gap-1 font-mono text-xs">
+      {siteConfig.nav.map((item) => {
+        const isActive = item.href === '/' ? currentPath === '' : currentPath.startsWith(item.href);
+        return (
+          <a
+            href={item.href}
+            class={`px-3 py-1.5 rounded-md transition-all duration-150 ${
+              isActive
+                ? 'bg-bg-secondary text-accent font-medium border border-theme-border'
+                : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary'
+            }`}
+          >
+            {item.text}
+          </a>
+        );
+      })}
+    </nav>
+
+    <!-- Right Controls: Search, Theme Selector, Mode Toggle, Mobile Menu -->
+    <div class="flex items-center gap-2">
+      <!-- Search Button (Cmd+K) -->
+      <button
+        id="open-search-btn"
+        type="button"
+        class="hidden sm:flex items-center gap-2 px-2.5 py-1.5 text-xs font-mono rounded-md border border-theme-border bg-bg-secondary hover:bg-bg-tertiary hover:border-accent text-fg-muted hover:text-fg-primary transition-all duration-150"
+        title="Search articles (Cmd+K / Ctrl+K)"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <span class="text-[11px]">Search</span>
+        <kbd class="px-1 py-0.5 text-[10px] bg-bg-primary rounded border border-theme-border">⌘K</kbd>
+      </button>
+
+      <!-- Theme Selector Dropdown -->
+      <ThemeSelector />
+
+      <!-- Mode Quick Toggle -->
+      <ModeToggle />
+
+      <!-- Mobile Menu Toggle Button -->
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        class="md:hidden p-2 rounded-md border border-theme-border bg-bg-secondary text-fg-primary hover:bg-bg-tertiary"
+        aria-label="Toggle Navigation Menu"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Dropdown Nav -->
+  <div id="mobile-menu" class="hidden md:hidden border-b border-theme-border bg-bg-primary px-4 py-3 space-y-1 font-mono text-sm">
+    {siteConfig.nav.map((item) => (
+      <a
+        href={item.href}
+        class="block px-3 py-2 rounded-md text-fg-secondary hover:text-accent hover:bg-bg-secondary transition-colors"
+      >
+        {item.text}
+      </a>
+    ))}
+    <button
+      id="mobile-search-btn"
+      class="w-full flex items-center justify-between px-3 py-2 rounded-md text-fg-secondary hover:text-accent hover:bg-bg-secondary transition-colors text-left"
+    >
+      <span>Search articles</span>
+      <kbd class="text-xs text-fg-muted">⌘K</kbd>
+    </button>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (!mobileBtn || !mobileMenu) return;
+
+    mobileBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+
+  initHeader();
+  document.addEventListener('astro:page-load', initHeader);
+</script>

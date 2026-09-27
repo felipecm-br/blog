@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogPostCard from '../components/BlogPostCard.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '../data/siteConfig';
+import { generateWebsiteSchema } from '../utils/seo';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const featuredPosts = sortedPosts.filter((p) => p.data.featured);
+const recentPosts = sortedPosts.slice(0, 4);
+
+const schema = generateWebsiteSchema();
+---
+
+<BaseLayout
+  title={siteConfig.title}
+  description={siteConfig.description}
+  schema={schema}
+>
+  <!-- Hero Section -->
+  <section class="py-6 sm:py-10 border-b border-theme-border">
+    <div class="flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-8">
+      <div class="space-y-4 max-w-2xl">
+        <!-- Terminal prompt badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-bg-secondary border border-theme-border text-fg-secondary">
+          <span class="w-2 h-2 rounded-full bg-theme-green animate-pulse"></span>
+          <span>felipecm@dev-workstation: ~</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-fg-primary leading-tight">
+          Engineering <span class="text-accent underline decoration-accent/40 decoration-wavy underline-offset-8">zero-friction</span> systems & state-of-the-art web.
+        </h1>
+
+        <p class="text-base sm:text-lg text-fg-secondary leading-relaxed">
+          Hi, I'm <strong class="text-fg-primary font-semibold">{siteConfig.author}</strong>. I specialize in high-performance frontend architecture, terminal ergonomics (KLM-GOMS, Home Row First), low-latency developer tooling, and modern web platforms.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-3 pt-2 font-mono text-xs">
+          <a
+            href="/blog"
+            class="px-4 py-2.5 rounded-lg bg-accent text-bg-primary font-bold hover:bg-accent-hover transition-colors shadow-sm"
+          >
+            Read the Articles →
+          </a>
+          <a
+            href="/projects"
+            class="px-4 py-2.5 rounded-lg bg-bg-secondary border border-theme-border text-fg-primary hover:border-accent transition-colors"
+          >
+            Explore Projects
+          </a>
+          <button
+            onclick="document.getElementById('theme-menu-button')?.click()"
+            class="px-4 py-2.5 rounded-lg bg-bg-secondary border border-theme-border text-fg-muted hover:text-accent hover:border-accent transition-colors flex items-center gap-1.5"
+          >
+            <span class="w-2 h-2 rounded-full bg-accent"></span>
+            <span>Switch Theme (<kbd>T</kbd>)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Developer Terminal Card Graphic -->
+      <div class="w-full md:w-72 rounded-xl border border-theme-border bg-bg-secondary p-4 font-mono text-xs shadow-lg space-y-2.5">
+        <div class="flex items-center gap-1.5 pb-2 border-b border-theme-border">
+          <span class="w-2.5 h-2.5 rounded-full bg-theme-red/80"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-theme-yellow/80"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-theme-green/80"></span>
+          <span class="ml-2 text-[10px] text-fg-muted">env.sh</span>
+        </div>
+        <div class="space-y-1 text-fg-secondary">
+          <p><span class="text-accent font-bold">OS:</span> Asahi Linux / Omarchy</p>
+          <p><span class="text-accent font-bold">Shell:</span> Zsh + Matchmaker TUI</p>
+          <p><span class="text-accent font-bold">Editor:</span> Neovim + Shiki</p>
+          <p><span class="text-accent font-bold">Stack:</span> Astro 5 + Tailwind</p>
+          <p><span class="text-accent font-bold">Themes:</span> 22 Omarchy Palettes</p>
+          <p><span class="text-accent font-bold">Latency:</span> &lt;10ms sub-Doherty</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Omarchy Theming Engine Callout Banner -->
+  <section class="my-10 p-5 sm:p-6 rounded-2xl bg-bg-secondary border border-theme-border relative overflow-hidden">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold text-accent uppercase tracking-wider">Dynamic Theming</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-bg-tertiary text-fg-secondary border border-theme-border">22 Palettes</span>
+        </div>
+        <h2 class="text-lg font-bold text-fg-primary">Test Every Omarchy Theme in Real-Time</h2>
+        <p class="text-xs text-fg-secondary">
+          Switch between Catppuccin, Tokyo Night, Gruvbox, Nord, Everforest, Rose Pine, Flexoki, and more. Zero page reloads, zero flicker.
+        </p>
+      </div>
+      <button
+        onclick="document.getElementById('theme-menu-button')?.click()"
+        class="shrink-0 px-3.5 py-2 rounded-lg bg-bg-tertiary border border-theme-border hover:border-accent text-accent font-mono text-xs font-semibold transition-colors"
+      >
+        Choose Palette 🎨
+      </button>
+    </div>
+  </section>
+
+  <!-- Featured Posts -->
+  {featuredPosts.length > 0 && (
+    <section class="my-12">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-fg-primary">Featured Writing</h2>
+          <p class="text-xs font-mono text-fg-muted mt-0.5">Handpicked articles on architecture and ergonomics</p>
+        </div>
+        <a href="/blog" class="text-xs font-mono text-accent hover:underline flex items-center gap-1">
+          View all posts →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {featuredPosts.map((post) => (
+          <BlogPostCard post={post} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Recent Articles -->
+  <section class="my-12">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-fg-primary">Recent Publications</h2>
+        <p class="text-xs font-mono text-fg-muted mt-0.5">Latest blog entries and deep dives</p>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      {recentPosts.map((post) => (
+        <BlogPostCard post={post} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

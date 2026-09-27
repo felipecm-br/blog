@@ -1,0 +1,53 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { getReadingTime } from '../utils/readingTime';
+
+export interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const readingTime = getReadingTime(post.body || '');
+---
+
+<article class="group relative rounded-xl border border-theme-border bg-bg-secondary p-5 sm:p-6 card-hover flex flex-col justify-between">
+  <div>
+    <!-- Meta Info: Date + Reading Time -->
+    <div class="flex items-center gap-3 mb-2.5">
+      <FormattedDate date={post.data.pubDate} />
+      <span class="text-xs text-fg-muted font-mono">·</span>
+      <span class="text-xs font-mono text-fg-muted">{readingTime}</span>
+      {post.data.featured && (
+        <span class="ml-auto text-[10px] font-mono px-2 py-0.5 rounded bg-accent/15 text-accent border border-accent/30 font-medium">
+          FEATURED
+        </span>
+      )}
+    </div>
+
+    <!-- Title Link -->
+    <h3 class="text-lg sm:text-xl font-bold tracking-tight text-fg-primary group-hover:text-accent transition-colors mb-2">
+      <a href={`/blog/${post.id}`} class="focus:outline-none">
+        <span class="absolute inset-0 z-10" aria-hidden="true"></span>
+        {post.data.title}
+      </a>
+    </h3>
+
+    <!-- Description -->
+    <p class="text-sm text-fg-secondary line-clamp-2 leading-relaxed mb-4">
+      {post.data.description}
+    </p>
+  </div>
+
+  <!-- Tags -->
+  <div class="flex flex-wrap gap-1.5 mt-auto pt-2 z-20">
+    {post.data.tags.map((tag) => (
+      <a
+        href={`/tags/${tag}`}
+        class="text-[11px] font-mono px-2 py-0.5 rounded bg-bg-tertiary text-fg-secondary hover:text-accent hover:border-accent border border-theme-border transition-colors"
+      >
+        #{tag}
+      </a>
+    ))}
+  </div>
+</article>

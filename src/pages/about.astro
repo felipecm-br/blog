@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../data/siteConfig';
+---
+
+<BaseLayout
+  title="About // Felipe Miranda"
+  description="Background, engineering philosophy, and stack of Felipe Miranda."
+>
+  <div class="mb-10 pb-6 border-b border-theme-border">
+    <div class="flex items-center gap-2 mb-2 font-mono text-xs text-accent">
+      <span>~</span>
+      <span>/</span>
+      <span>about</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-fg-primary mb-2">
+      About Me
+    </h1>
+    <p class="text-sm text-fg-secondary">
+      Software Engineer, Systems Builder & Terminal Ergonomics Enthusiast.
+    </p>
+  </div>
+
+  <div class="space-y-10 text-fg-primary leading-relaxed">
+    <!-- Bio Intro -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold tracking-tight text-fg-primary border-b border-theme-border pb-2">
+        Bio & Overview
+      </h2>
+      <p class="text-fg-secondary leading-relaxed">
+        Hello! I'm <strong class="text-fg-primary">{siteConfig.author}</strong>, a developer focused on crafting resilient software, intuitive terminal user interfaces, and blazingly fast web experiences.
+      </p>
+      <p class="text-fg-secondary leading-relaxed">
+        My engineering philosophy revolves around <strong>low-latency systems</strong>, <strong>frictionless workflows</strong>, and <strong>biomechanical ergonomics</strong>. I believe developer tooling and web platforms should operate well below the 100ms Doherty threshold to keep humans in an uninterrupted flow state.
+      </p>
+    </section>
+
+    <!-- Core Stack -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold tracking-tight text-fg-primary border-b border-theme-border pb-2">
+        Core Stack & Toolkit
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+        <div class="p-4 rounded-xl border border-theme-border bg-bg-secondary space-y-2">
+          <span class="text-accent font-bold">Frontend & Systems:</span>
+          <ul class="space-y-1 text-fg-secondary list-disc list-inside">
+            <li>Astro 5 & Modern Web APIs</li>
+            <li>Tailwind CSS & CSS Custom Properties</li>
+            <li>TypeScript / JavaScript (ESNext)</li>
+            <li>Rust & CLI/TUI Application Architecture</li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl border border-theme-border bg-bg-secondary space-y-2">
+          <span class="text-accent font-bold">Environment & Tooling:</span>
+          <ul class="space-y-1 text-fg-secondary list-disc list-inside">
+            <li>Asahi Linux / Omarchy Desktop & Wayland</li>
+            <li>Tmux & Matchmaker TUI Picker</li>
+            <li>Git Worktrees Orchestration (`awt`)</li>
+            <li>Neovim with LSP & Shiki Syntax</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Connect -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold tracking-tight text-fg-primary border-b border-theme-border pb-2">
+        Get in Touch
+      </h2>
+      <p class="text-fg-secondary text-sm">
+        Feel free to connect or follow along with my open-source projects:
+      </p>
+      <div class="flex flex-wrap gap-3 font-mono text-xs">
+        <a
+          href={siteConfig.socials.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-4 py-2 rounded-lg bg-bg-secondary border border-theme-border hover:border-accent hover:text-accent transition-colors"
+        >
+          GitHub →
+        </a>
+        <a
+          href={`mailto:${siteConfig.socials.email}`}
+          class="px-4 py-2 rounded-lg bg-bg-secondary border border-theme-border hover:border-accent hover:text-accent transition-colors"
+        >
+          Email Me →
+        </a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

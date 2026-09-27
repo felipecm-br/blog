@@ -1,0 +1,75 @@
+---
+// Instant Mode Toggle (Dark <-> Light)
+---
+
+<button
+  id="mode-toggle-button"
+  type="button"
+  class="p-2 rounded-md border border-theme-border bg-bg-secondary hover:bg-bg-tertiary hover:border-accent text-fg-primary transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-accent"
+  aria-label="Toggle Dark and Light Mode"
+  title="Toggle Dark/Light Mode"
+>
+  <!-- Sun Icon (shown in dark mode to switch to light) -->
+  <svg id="sun-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+  </svg>
+  <!-- Moon Icon (shown in light mode to switch to dark) -->
+  <svg id="moon-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+  </svg>
+</button>
+
+<script>
+  function initModeToggle() {
+    const btn = document.getElementById('mode-toggle-button');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    if (!btn || !sunIcon || !moonIcon) return;
+
+    function syncIcons() {
+      const currentMode = document.documentElement.getAttribute('data-mode') || 'dark';
+      if (currentMode === 'dark') {
+        sunIcon?.classList.remove('hidden');
+        moonIcon?.classList.add('hidden');
+      } else {
+        sunIcon?.classList.add('hidden');
+        moonIcon?.classList.remove('hidden');
+      }
+    }
+
+    btn.addEventListener('click', () => {
+      const currentMode = document.documentElement.getAttribute('data-mode') || 'dark';
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'catppuccin';
+
+      let targetMode = currentMode === 'dark' ? 'light' : 'dark';
+      let targetTheme = currentTheme;
+
+      if (targetMode === 'light') {
+        if (currentTheme === 'catppuccin') targetTheme = 'catppuccin-latte';
+        else if (currentTheme === 'gruvbox') targetTheme = 'flexoki-light';
+        else targetTheme = 'catppuccin-latte';
+      } else {
+        if (currentTheme === 'catppuccin-latte') targetTheme = 'catppuccin';
+        else if (currentTheme === 'flexoki-light') targetTheme = 'gruvbox';
+        else targetTheme = 'catppuccin';
+      }
+
+      document.documentElement.setAttribute('data-mode', targetMode);
+      document.documentElement.setAttribute('data-theme', targetTheme);
+      localStorage.setItem('omarchy-mode', targetMode);
+      localStorage.setItem('omarchy-theme', targetTheme);
+
+      syncIcons();
+
+      // Trigger custom event so other components (ThemeSelector) update their UI
+      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: targetTheme, mode: targetMode } }));
+    });
+
+    syncIcons();
+    window.addEventListener('themechange', syncIcons);
+  }
+
+  initModeToggle();
+  document.addEventListener('astro:page-load', initModeToggle);
+</script>

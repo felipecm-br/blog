@@ -1,0 +1,68 @@
+---
+export interface Props {
+  headings: Array<{
+    depth: number;
+    slug: string;
+    text: string;
+  }>;
+}
+
+const { headings } = Astro.props;
+const filteredHeadings = headings.filter((h) => h.depth > 1 && h.depth < 4);
+---
+
+{filteredHeadings.length > 0 && (
+  <nav class="space-y-2 text-xs font-mono" id="table-of-contents">
+    <p class="font-semibold text-fg-primary uppercase tracking-wider text-[11px] mb-3">Table of Contents</p>
+    <ul class="space-y-1.5 border-l border-theme-border pl-3">
+      {filteredHeadings.map((heading) => (
+        <li class={heading.depth === 3 ? 'pl-3' : ''}>
+          <a
+            href={`#${heading.slug}`}
+            class="toc-link block text-fg-muted hover:text-accent transition-colors line-clamp-1 py-0.5"
+            data-slug={heading.slug}
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<script>
+  function initTOC() {
+    const links = document.querySelectorAll('.toc-link');
+    const headings = Array.from(links).map((link) => {
+      const slug = link.getAttribute('data-slug');
+      return slug ? document.getElementById(slug) : null;
+    }).filter(Boolean) as HTMLElement[];
+
+    if (headings.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            links.forEach((link) => {
+              if (link.getAttribute('data-slug') === id) {
+                link.classList.add('text-accent', 'font-semibold');
+                link.classList.remove('text-fg-muted');
+              } else {
+                link.classList.remove('text-accent', 'font-semibold');
+                link.classList.add('text-fg-muted');
+              }
+            });
+          }
+        });
+      },
+      { rootMargin: '-80px 0% -60% 0%' }
+    );
+
+    headings.forEach((h) => observer.observe(h));
+  }
+
+  initTOC();
+  document.addEventListener('astro:page-load', initTOC);
+</script>

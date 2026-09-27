@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+const tagCounts = new Map<string, number>();
+posts.forEach((post) => {
+  post.data.tags.forEach((tag) => {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  });
+});
+
+const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout
+  title="Tags // Topic Index"
+  description="Explore blog articles categorized by technologies, ergonomics, systems, and architectural patterns."
+>
+  <div class="mb-10 pb-6 border-b border-theme-border">
+    <div class="flex items-center gap-2 mb-2 font-mono text-xs text-accent">
+      <span>~</span>
+      <span>/</span>
+      <span>tags</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-fg-primary mb-2">
+      Tags & Topics
+    </h1>
+    <p class="text-sm text-fg-secondary">
+      Browse articles categorized by tech stack, systems architecture, and ergonomics.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    {sortedTags.map(([tag, count]) => (
+      <a
+        href={`/tags/${tag}`}
+        class="flex items-center justify-between p-4 rounded-xl border border-theme-border bg-bg-secondary hover:border-accent hover:bg-bg-tertiary transition-all duration-150 group"
+      >
+        <div class="flex items-center gap-2">
+          <span class="text-accent font-mono text-sm font-bold">#</span>
+          <span class="font-medium text-sm text-fg-primary group-hover:text-accent transition-colors">{tag}</span>
+        </div>
+        <span class="text-xs font-mono px-2 py-0.5 rounded bg-bg-primary border border-theme-border text-fg-muted">
+          {count} {count === 1 ? 'post' : 'posts'}
+        </span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

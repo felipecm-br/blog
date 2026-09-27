@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogPostCard from '../../components/BlogPostCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// Collect all unique tags with post count
+const tagCounts = new Map<string, number>();
+sortedPosts.forEach((post) => {
+  post.data.tags.forEach((tag) => {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  });
+});
+const tags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout
+  title="Blog // Articles & Guides"
+  description="All articles, technical deep dives, and thoughts on frontend architecture, low latency, and developer ergonomics."
+>
+  <!-- Header -->
+  <div class="mb-10 pb-6 border-b border-theme-border">
+    <div class="flex items-center gap-2 mb-2 font-mono text-xs text-accent">
+      <span>~</span>
+      <span>/</span>
+      <span>blog</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-fg-primary mb-2">
+      All Articles
+    </h1>
+    <p class="text-sm text-fg-secondary">
+      Thoughts on frontend engineering, terminal ergonomics, Astro, and low-latency systems.
+    </p>
+
+    <!-- Tag Filters Filter Bar -->
+    {tags.length > 0 && (
+      <div class="flex flex-wrap items-center gap-1.5 mt-6 pt-4 border-t border-theme-border">
+        <span class="text-xs font-mono text-fg-muted mr-1">Filter by tag:</span>
+        <a
+          href="/blog"
+          class="text-xs font-mono px-2.5 py-1 rounded bg-accent text-bg-primary font-bold transition-colors"
+        >
+          All ({sortedPosts.length})
+        </a>
+        {tags.map(([tag, count]) => (
+          <a
+            href={`/tags/${tag}`}
+            class="text-xs font-mono px-2.5 py-1 rounded bg-bg-secondary text-fg-secondary hover:text-accent hover:border-accent border border-theme-border transition-colors"
+          >
+            #{tag} ({count})
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <!-- Articles List -->
+  <div class="space-y-5">
+    {sortedPosts.map((post) => (
+      <BlogPostCard post={post} />
+    ))}
+  </div>
+</BaseLayout>
