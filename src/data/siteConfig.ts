@@ -31,7 +31,7 @@ export const siteConfig: SiteConfig = {
   locale: "en_US",
   avatar: "/avatar.svg",
   socials: {
-    github: "https://github.com/fcmiranda",
+    github: "https://github.com/felipecm-br",
     email: "fecmbr@gmail.com",
     twitter: "https://twitter.com/felipecm",
   },
